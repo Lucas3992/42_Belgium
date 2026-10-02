@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>FICSIT - Resource Encyclopedia</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 60px;
+            margin: 0;
+        }
+        .container { max-width: 860px; width: 90%; padding: 0 20px 60px; }
+        .ficsit-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #fa9414;
+            padding-bottom: 16px;
+        }
+        .ficsit-logo { font-size: 28px; font-weight: 900; color: #fa9414; letter-spacing: 4px; text-transform: uppercase; }
+        .ficsit-tagline { font-size: 11px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+        .separator { width: 40px; height: 3px; background: #fa9414; margin: 0 0 28px; }
+
+        .search-bar {
+            width: 100%;
+            box-sizing: border-box;
+            background: #1a1a1a;
+            border: 1px solid #fa9414;
+            color: #f0f0f0;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin-bottom: 28px;
+            outline: none;
+        }
+        .search-bar::placeholder { color: #555; }
+        .search-bar:focus { border-color: #fff; }
+
+        .category-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+        .cat-btn {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 5px 14px;
+            border: 1px solid #fa9414;
+            color: #fa9414;
+            background: transparent;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .cat-btn:hover, .cat-btn.active {
+            background: #fa9414;
+            color: #1a1a1a;
+        }
+
+        .category-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #fa9414;
+            margin: 36px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333;
+        }
+
+        .resource-card {
+            background: #222;
+            border-left: 4px solid #fa9414;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .resource-card:hover { background: #2a2a2a; }
+        .resource-card.hidden { display: none; }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+        }
+        .card-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #f0f0f0;
+        }
+        .card-rarity {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 3px 10px;
+            border-radius: 2px;
+        }
+        .rarity-common { background: #1a2a1a; color: #6a9; border: 1px solid #3a5a3a; }
+        .rarity-uncommon { background: #1a1a2a; color: #69a; border: 1px solid #3a3a6a; }
+        .rarity-rare { background: #2a1a2a; color: #a6a; border: 1px solid #5a3a5a; }
+        .rarity-exotic { background: #2a1a10; color: #fa9414; border: 1px solid #fa9414; }
+
+        .card-body {
+            display: none;
+            padding: 0 18px 16px;
+            border-top: 1px solid #333;
+        }
+        .card-body.open { display: block; }
+
+        .card-desc {
+            font-size: 13px;
+            color: #aaa;
+            margin: 12px 0;
+            line-height: 1.6;
+        }
+        .card-section {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fa9414;
+            margin: 14px 0 6px;
+        }
+        .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag {
+            font-size: 11px;
+            padding: 3px 10px;
+            background: #333;
+            color: #ccc;
+            border: 1px solid #444;
+        }
+        .location-list { list-style: none; padding: 0; margin: 0; }
+        .location-list li {
+            font-size: 13px;
+            color: #ccc;
+            padding: 4px 0;
+            border-bottom: 1px solid #2a2a2a;
+        }
+        .location-list li::before { content: "▸ "; color: #fa9414; }
+
+        .chevron { color: #fa9414; font-size: 12px; transition: transform 0.2s; }
+        .chevron.open { transform: rotate(90deg); }
+
+        footer { margin-top: 48px; font-size: 11px; color: #444; text-transform: uppercase; letter-spacing: 2px; border-top: 1px solid #2a2a2a; padding-top: 16px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/" style="text-decoration:none;">
+    <div class="ficsit-header">
+        <div>
+            <div class="ficsit-logo">FICSIT Inc.</div>
+            <div class="ficsit-tagline">Resource Encyclopedia — Field Operations Manual</div>
+        </div>
+    </div>
+</a>
+    <h1>Resource Encyclopedia</h1>
+    <div class="separator"></div>
+
+    <input class="search-bar" type="text" id="search" placeholder="Search resources..." oninput="filterResources()">
+
+    <div class="category-nav">
+        <button class="cat-btn active" onclick="filterCategory('all', this)">All</button>
+        <button class="cat-btn" onclick="filterCategory('ore', this)">Ores</button>
+        <button class="cat-btn" onclick="filterCategory('fluid', this)">Fluids</button>
+        <button class="cat-btn" onclick="filterCategory('gas', this)">Gases</button>
+        <button class="cat-btn" onclick="filterCategory('exotic', this)">Exotic</button>
+        <button class="cat-btn" onclick="filterCategory('organic', this)">Organic</button>
+    </div>
+
+    <!-- ORES -->
+    <div class="category-title" data-cat="ore">Ores</div>
+
+    <div class="resource-card" data-cat="ore" data-name="iron ore" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Iron Ore</span>
+            <span><span class="card-rarity rarity-common">Common</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">The most abundant ore on MASSAGE-2(AB)b. Foundation of early-game production. Used in virtually every production chain from basic construction to advanced electronics.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Iron Ingot</span><span class="tag">Iron Rod</span><span class="tag">Iron Plate</span>
+                <span class="tag">Screw</span><span class="tag">Reinforced Iron Plate</span><span class="tag">Rotor</span>
+                <span class="tag">Smart Plating</span><span class="tag">Modular Frame</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Northern Forest — large surface deposits near spawn</li>
+                <li>Rocky Desert — high-purity nodes on elevated terrain</li>
+                <li>Grass Fields — scattered pure nodes</li>
+                <li>Red Bamboo Fields — multiple impure nodes</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="ore" data-name="copper ore" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Copper Ore</span>
+            <span><span class="card-rarity rarity-common">Common</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Widely available reddish ore critical for electrical components. Essential for wire, cable, and circuit board production chains.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Copper Ingot</span><span class="tag">Wire</span><span class="tag">Cable</span>
+                <span class="tag">Copper Sheet</span><span class="tag">Circuit Board</span><span class="tag">Rotor</span>
+                <span class="tag">Motor</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Grass Fields — surface nodes near rivers</li>
+                <li>Northern Forest — moderate deposits</li>
+                <li>Dune Desert — large cluster of pure nodes</li>
+                <li>Blue Crater — pure nodes in southern area</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="ore" data-name="limestone" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Limestone</span>
+            <span><span class="card-rarity rarity-common">Common</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Abundant sedimentary rock used primarily for construction. Refined into concrete for structural components and foundations.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Concrete</span><span class="tag">Versatile Framework</span><span class="tag">Encased Industrial Beam</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Grass Fields — extremely abundant, large surface nodes</li>
+                <li>Rocky Desert — cliff faces and canyon walls</li>
+                <li>Northern Forest — riverbank deposits</li>
+                <li>Eastern Dunes — widespread impure nodes</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="ore" data-name="coal" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Coal</span>
+            <span><span class="card-rarity rarity-common">Common</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Fossil fuel ore used as fuel for coal generators and as a raw material in steel production. Key to mid-game power infrastructure.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Steel Ingot</span><span class="tag">Coal Generator (fuel)</span><span class="tag">Compacted Coal</span>
+                <span class="tag">Petroleum Coke (alt)</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Northern Forest — cliffs near waterfalls</li>
+                <li>Rocky Desert — elevated plateau areas</li>
+                <li>Swamp — surface nodes along the shore</li>
+                <li>Red Jungle — moderate deposits</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="ore" data-name="caterium ore" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Caterium Ore</span>
+            <span><span class="card-rarity rarity-uncommon">Uncommon</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">A golden alien ore unique to this planet. Refined into Quickwire, enabling compact and efficient electrical systems. Required for advanced automation.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Caterium Ingot</span><span class="tag">Quickwire</span><span class="tag">AI Limiter</span>
+                <span class="tag">High-Speed Connector</span><span class="tag">Supercomputer</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Caterium Forest — primary biome, surface nodes everywhere</li>
+                <li>Swamp — northern edge deposits</li>
+                <li>Blue Crater — moderate deposits</li>
+                <li>Red Bamboo Fields — scattered nodes</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="ore" data-name="sulfur" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Sulfur</span>
+            <span><span class="card-rarity rarity-uncommon">Uncommon</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Yellow crystalline mineral used in explosive and chemical manufacturing. Critical for ammunition and nobelisk production.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Black Powder</span><span class="tag">Nobelisk</span><span class="tag">Smokeless Powder</span>
+                <span class="tag">Rifle Ammo</span><span class="tag">Sulfuric Acid</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Rocky Desert — volcanic formations</li>
+                <li>Dune Desert — southwestern deposits</li>
+                <li>Red Jungle — deep jungle floor nodes</li>
+                <li>Swamp — geothermal vents area</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="ore" data-name="bauxite" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Bauxite</span>
+            <span><span class="card-rarity rarity-uncommon">Uncommon</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Reddish aluminium ore. Required for late-game aluminium production chain which enables lightweight but strong structural components.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Alumina Solution</span><span class="tag">Aluminium Scrap</span><span class="tag">Aluminium Ingot</span>
+                <span class="tag">Alclad Aluminium Sheet</span><span class="tag">Aluminium Casing</span><span class="tag">Battery</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Red Jungle — cliffs and elevated terrain</li>
+                <li>Blue Crater — crater rim deposits</li>
+                <li>Swamp — northern peninsula</li>
+                <li>Titan Forest — deep interior nodes</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="ore" data-name="raw quartz" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Raw Quartz</span>
+            <span><span class="card-rarity rarity-uncommon">Uncommon</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Crystalline silicon mineral used in electronics manufacturing. Refined into quartz crystals and silica for computer and oscillator production.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Quartz Crystal</span><span class="tag">Silica</span><span class="tag">Crystal Oscillator</span>
+                <span class="tag">Radio Control Unit</span><span class="tag">Computer</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Blue Crater — abundant surface nodes</li>
+                <li>Quartz Fields — dedicated biome</li>
+                <li>Dune Desert — western border deposits</li>
+                <li>Red Bamboo Fields — scattered impure nodes</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="ore" data-name="uranium" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Uranium</span>
+            <span><span class="card-rarity rarity-rare">Rare</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Highly radioactive ore. Extremely dangerous to handle without hazmat protection. Used in nuclear power and advanced explosive manufacturing. Produces toxic waste as byproduct.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Uranium Fuel Rod</span><span class="tag">Encased Uranium Cell</span>
+                <span class="tag">Nuclear Power Plant (fuel)</span><span class="tag">Nuke Nobelisk</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Blue Crater — irradiated zone, southern sector</li>
+                <li>Swamp — deep radioactive pools</li>
+                <li>Red Jungle — hidden cave deposits</li>
+                <li>NOTE: Always wear Hazmat Suit when harvesting</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="ore" data-name="sam ore" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">SAM Ore</span>
+            <span><span class="card-rarity rarity-exotic">Exotic</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Strange Alien Metal. Origin and full purpose unknown. Currently under FICSIT research. Scattered across the planet in small quantities. Handle with curiosity.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">SAM Fluctuator</span><span class="tag">Reanimated SAM</span><span class="tag">[CLASSIFIED]</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Scattered across all biomes in small veins</li>
+                <li>Often near alien artifact sites</li>
+                <li>Underground cave systems</li>
+                <li>Exact distribution remains under research</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- FLUIDS -->
+    <div class="category-title" data-cat="fluid">Fluids</div>
+
+    <div class="resource-card" data-cat="fluid" data-name="water" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Water</span>
+            <span><span class="card-rarity rarity-common">Common</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Abundant liquid resource extracted via Water Extractor placed on bodies of water. Used in cooling, refining, and nuclear waste processing.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Alumina Solution</span><span class="tag">Battery</span><span class="tag">Cooling System</span>
+                <span class="tag">Nuclear Pasta</span><span class="tag">Uranium Waste (processing)</span><span class="tag">Fuel Generator (cooling)</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>All lakes and rivers across the map</li>
+                <li>Ocean surrounding the playable area</li>
+                <li>Extracted with Water Extractor — no node required</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="fluid" data-name="crude oil" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Crude Oil</span>
+            <span><span class="card-rarity rarity-uncommon">Uncommon</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Black liquid hydrocarbon extracted from underground oil nodes. Foundation of the mid-to-late game fuel and polymer production chains.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Plastic</span><span class="tag">Rubber</span><span class="tag">Fuel</span>
+                <span class="tag">Heavy Oil Residue</span><span class="tag">Petroleum Coke</span><span class="tag">Polymer Resin</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Dune Desert — large oil field, multiple pure nodes</li>
+                <li>Red Jungle — southeastern coast</li>
+                <li>Swamp — offshore platforms area</li>
+                <li>Titan Forest — deep interior deposits</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="fluid" data-name="nitrogen gas" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Nitrogen Gas</span>
+            <span><span class="card-rarity rarity-rare">Rare</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Inert gas extracted from dedicated resource wells. Used in cooling systems and late-game manufacturing. Requires Resource Well Pressurizer to extract.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Cooling System</span><span class="tag">Turbo Motor</span><span class="tag">Nitric Acid</span>
+                <span class="tag">Fused Modular Frame</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Titan Forest — pressurized resource wells</li>
+                <li>Northern Forest — high-altitude vents</li>
+                <li>Extracted via Resource Well Pressurizer only</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- GASES -->
+    <div class="category-title" data-cat="gas">Gases</div>
+
+    <div class="resource-card" data-cat="gas" data-name="natural gas" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Natural Gas (Geyser)</span>
+            <span><span class="card-rarity rarity-uncommon">Uncommon</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Methane-rich gas emitted from geysers. Can be captured and burned directly in generators for efficient power production. No refining required.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Geo Thermal Generator (power)</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Rocky Desert — volcanic geyser fields</li>
+                <li>Swamp — geothermal vent clusters</li>
+                <li>Dune Desert — scattered vents</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- EXOTIC -->
+    <div class="category-title" data-cat="exotic">Exotic</div>
+
+    <div class="resource-card" data-cat="exotic" data-name="ficsite ingot" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Ficsite Ingot</span>
+            <span><span class="card-rarity rarity-exotic">Exotic</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Extremely advanced alloy derived from SAM processing. Part of the endgame production chain. Properties not fully understood by FICSIT science division.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Ficsite Trigon</span><span class="tag">SAM Fluctuator</span><span class="tag">[CLASSIFIED]</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Produced via Converter from SAM Ore</li>
+                <li>Cannot be found in raw form in the world</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="exotic" data-name="mercer sphere" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Mercer Sphere</span>
+            <span><span class="card-rarity rarity-exotic">Exotic</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Alien artifact of unknown origin. Found in hidden locations across the planet. Used to unlock dimensional depots and advanced storage infrastructure.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Dimensional Depot unlock</span><span class="tag">AWESOME Sink (alternative)</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Hidden in caves and hard-to-reach locations</li>
+                <li>Near alien crash sites</li>
+                <li>Cannot be mined — picked up manually</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="exotic" data-name="somersloop" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Somersloop</span>
+            <span><span class="card-rarity rarity-exotic">Exotic</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Alien loop-shaped artifact found across the world. Used to double production in machines via the Power Augmenter. Limited supply — use wisely.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Power Augmenter (production boost)</span><span class="tag">AWESOME Sink (alternative)</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Scattered across all biomes</li>
+                <li>Often in elevated or underwater locations</li>
+                <li>Cannot be mined — picked up manually</li>
+                <li>Finite quantity in the world</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ORGANIC -->
+    <div class="category-title" data-cat="organic">Organic</div>
+
+    <div class="resource-card" data-cat="organic" data-name="leaves" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Leaves</span>
+            <span><span class="card-rarity rarity-common">Common</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Basic organic material collected from vegetation. Useful early-game fuel source before coal power is established.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Biomass</span><span class="tag">Solid Biofuel</span><span class="tag">Biomass Burner (fuel)</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Collected from trees and bushes everywhere</li>
+                <li>Respawns over time in the world</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="organic" data-name="wood" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Wood</span>
+            <span><span class="card-rarity rarity-common">Common</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Organic timber collected from alien trees. Higher biomass value than leaves. Good early fuel source and required for some biofuel recipes.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Biomass</span><span class="tag">Solid Biofuel</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Chopped from trees across all forested biomes</li>
+                <li>Most abundant in Northern Forest and Red Jungle</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="organic" data-name="mycelia" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Mycelia</span>
+            <span><span class="card-rarity rarity-uncommon">Uncommon</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Alien fungal organism. Collected from large mushroom-like growths. Used in medical and biochemical manufacturing.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Medicinal Inhaler</span><span class="tag">Biomass</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Swamp — abundant on the ground</li>
+                <li>Red Jungle — cave floors</li>
+                <li>Blue Crater — scattered patches</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="resource-card" data-cat="organic" data-name="alien protein" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Alien Protein</span>
+            <span><span class="card-rarity rarity-rare">Rare</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Organic compound harvested from alien creatures. Used in biological research and advanced medical item production. Requires hunting.</p>
+            <div class="card-section">Used In</div>
+            <div class="tag-list">
+                <span class="tag">Alien DNA Capsule</span><span class="tag">Medicinal Inhaler</span>
+            </div>
+            <div class="card-section">Where to Find</div>
+            <ul class="location-list">
+                <li>Dropped by Hogs, Spitters, Stingers on death</li>
+                <li>Each creature type yields a specific protein variant</li>
+                <li>Cannot be automated — requires manual combat</li>
+            </ul>
+        </div>
+    </div>
+
+    <br>
+    <a href="/" class="ficsit-btn">[ Back to HUB ]</a>
+
+    <footer>FICSIT Inc. — Waste nothing. Build everything.</footer>
+</div>
+
+<script>
+function toggleCard(card) {
+    var body = card.querySelector('.card-body');
+    var chevron = card.querySelector('.chevron');
+    body.classList.toggle('open');
+    chevron.classList.toggle('open');
+}
+
+function filterResources() {
+    var query = document.getElementById('search').value.toLowerCase();
+    var cards = document.querySelectorAll('.resource-card');
+    cards.forEach(function(card) {
+        var name = card.getAttribute('data-name');
+        card.classList.toggle('hidden', name.indexOf(query) === -1);
+    });
+    updateCategoryTitles();
+}
+
+function filterCategory(cat, btn) {
+    document.querySelectorAll('.cat-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var cards = document.querySelectorAll('.resource-card');
+    cards.forEach(function(card) {
+        if (cat === 'all') {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.toggle('hidden', card.getAttribute('data-cat') !== cat);
+        }
+    });
+    updateCategoryTitles();
+}
+
+function updateCategoryTitles() {
+    var titles = document.querySelectorAll('.category-title');
+    titles.forEach(function(title) {
+        var cat = title.getAttribute('data-cat');
+        var visible = document.querySelectorAll('.resource-card[data-cat="' + cat + '"]:not(.hidden)');
+        title.style.display = visible.length === 0 ? 'none' : 'block';
+    });
+}
+</script>
+</body>
+</html>

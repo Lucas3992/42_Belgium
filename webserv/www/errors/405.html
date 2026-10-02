@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FICSIT - Error 405</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 680px;
+            width: 90%;
+            padding: 40px 20px;
+        }
+
+        .ficsit-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #fa9414;
+            padding-bottom: 16px;
+        }
+
+        .ficsit-logo {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fa9414;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+        }
+
+        .ficsit-tagline {
+            font-size: 11px;
+            color: #888;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .error-code {
+            font-size: 96px;
+            font-weight: 900;
+            color: #fa9414;
+            line-height: 1;
+            margin: 0 0 8px 0;
+            letter-spacing: -2px;
+        }
+
+        .error-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #f0f0f0;
+            margin: 0 0 24px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .ficsit-box {
+            background: #333;
+            border-left: 5px solid #fa9414;
+            padding: 15px 20px;
+            margin: 20px 0;
+        }
+
+        .ficsit-box p {
+            margin: 0;
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .ficsit-box .label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fa9414;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 16px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #333;
+        }
+
+        .status-item {
+            font-size: 11px;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-item span {
+            color: #888;
+        }
+
+        .ficsit-btn {
+            display: inline-block;
+            background-color: #fa0;
+            color: #1a1a1a;
+            padding: 8px 20px;
+            margin-top: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: 2px solid #fa0;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-size: 13px;
+            letter-spacing: 1px;
+            cursor: pointer;
+        }
+
+        .ficsit-btn:hover {
+            background-color: #1a1a1a;
+            color: #fa0;
+        }
+
+        .separator {
+            width: 40px;
+            height: 3px;
+            background: #fa9414;
+            margin: 16px 0;
+        }
+
+        footer {
+            margin-top: 40px;
+            font-size: 11px;
+            color: #444;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="ficsit-header">
+            <div>
+                <div class="ficsit-logo">FICSIT Inc.</div>
+                <div class="ficsit-tagline">Intranet — Automated Operations Division</div>
+            </div>
+        </div>
+
+        <div class="error-code">405</div>
+        <div class="error-title">Method Not Allowed</div>
+        <div class="separator"></div>
+
+        <div class="ficsit-box">
+            <span class="label">Incident Report</span>
+            <p>The HTTP method you used is not permitted on this route. Consult the API documentation and ensure your operation is authorized.</p>
+        </div>
+
+        <div class="ficsit-box">
+            <span class="label">Directive</span>
+            <p>Pioneer, your productivity is being monitored. Return to your workstation and resume operations immediately. FICSIT does not tolerate idle time.</p>
+        </div>
+
+        <a class="ficsit-btn" href="/">Return to Base</a>
+
+        <div class="status-bar">
+            <div class="status-item">Server: <span>Webserv/1.0</span></div>
+            <div class="status-item">Status: <span>405</span></div>
+            <div class="status-item">Protocol: <span>HTTP/1.1</span></div>
+        </div>
+
+        <footer>FICSIT Inc. — Waste nothing. Build everything.</footer>
+    </div>
+</body>
+</html>

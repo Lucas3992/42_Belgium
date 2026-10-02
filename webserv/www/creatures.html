@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>FICSIT - Creature Field Guide</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 60px;
+            margin: 0;
+        }
+        .container { max-width: 860px; width: 90%; padding: 0 20px 60px; }
+        .ficsit-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #fa9414;
+            padding-bottom: 16px;
+        }
+        .ficsit-logo { font-size: 28px; font-weight: 900; color: #fa9414; letter-spacing: 4px; text-transform: uppercase; }
+        .ficsit-tagline { font-size: 11px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+        .separator { width: 40px; height: 3px; background: #fa9414; margin: 0 0 28px; }
+
+        .search-bar {
+            width: 100%;
+            box-sizing: border-box;
+            background: #1a1a1a;
+            border: 1px solid #fa9414;
+            color: #f0f0f0;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin-bottom: 28px;
+            outline: none;
+        }
+        .search-bar::placeholder { color: #555; }
+        .search-bar:focus { border-color: #fff; }
+
+        .category-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 32px;
+        }
+        .cat-btn {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 5px 14px;
+            border: 1px solid #fa9414;
+            color: #fa9414;
+            background: transparent;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .cat-btn:hover, .cat-btn.active { background: #fa9414; color: #1a1a1a; }
+
+        .category-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #fa9414;
+            margin: 36px 0 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333;
+        }
+
+        .resource-card {
+            background: #222;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .resource-card:hover { background: #2a2a2a; }
+        .resource-card.hidden { display: none; }
+
+        .threat-low    { border-left: 4px solid #4a9; }
+        .threat-medium { border-left: 4px solid #fa9414; }
+        .threat-high   { border-left: 4px solid #c44; }
+        .threat-boss   { border-left: 4px solid #a4a; }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+        }
+        .card-name { font-size: 15px; font-weight: 600; color: #f0f0f0; }
+
+        .threat-badge {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 3px 10px;
+            border-radius: 2px;
+        }
+        .badge-low    { background: #1a2a20; color: #4a9; border: 1px solid #4a9; }
+        .badge-medium { background: #2a2010; color: #fa9414; border: 1px solid #fa9414; }
+        .badge-high   { background: #2a1a1a; color: #c44; border: 1px solid #c44; }
+        .badge-boss   { background: #1a1020; color: #a4a; border: 1px solid #a4a; }
+
+        .card-body { display: none; padding: 0 18px 16px; border-top: 1px solid #333; }
+        .card-body.open { display: block; }
+
+        .card-desc { font-size: 13px; color: #aaa; margin: 12px 0; line-height: 1.6; }
+        .card-section { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #fa9414; margin: 14px 0 6px; }
+
+        .stat-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 8px; }
+        .stat {
+            background: #333;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #ccc;
+        }
+        .stat span { color: #fa9414; font-weight: bold; }
+
+        .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag { font-size: 11px; padding: 3px 10px; background: #333; color: #ccc; border: 1px solid #444; }
+
+        .location-list { list-style: none; padding: 0; margin: 0; }
+        .location-list li { font-size: 13px; color: #ccc; padding: 4px 0; border-bottom: 1px solid #2a2a2a; }
+        .location-list li::before { content: "▸ "; color: #fa9414; }
+
+        .tip-box {
+            background: #1a2010;
+            border-left: 3px solid #4a9;
+            padding: 10px 14px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #8c8;
+        }
+        .tip-box::before { content: "FIELD TIP: "; color: #4a9; font-weight: bold; letter-spacing: 1px; }
+
+        .warning-box {
+            background: #2a1010;
+            border-left: 3px solid #c44;
+            padding: 10px 14px;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #c88;
+        }
+        .warning-box::before { content: "WARNING: "; color: #c44; font-weight: bold; letter-spacing: 1px; }
+
+        .chevron { color: #fa9414; font-size: 12px; transition: transform 0.2s; }
+        .chevron.open { transform: rotate(90deg); }
+
+        footer { margin-top: 48px; font-size: 11px; color: #444; text-transform: uppercase; letter-spacing: 2px; border-top: 1px solid #2a2a2a; padding-top: 16px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/" style="text-decoration:none;">
+    <div class="ficsit-header">
+        <div>
+            <div class="ficsit-logo">FICSIT Inc.</div>
+            <div class="ficsit-tagline">Creature Field Guide — Pioneer Safety Division</div>
+        </div>
+    </div>
+</a>
+
+    <h1>Creature Field Guide</h1>
+    <div class="separator"></div>
+
+    <input class="search-bar" type="text" id="search" placeholder="Search creatures..." oninput="filterResources()">
+
+    <div class="category-nav">
+        <button class="cat-btn active" onclick="filterCategory('all', this)">All</button>
+        <button class="cat-btn" onclick="filterCategory('passive', this)">Passive</button>
+        <button class="cat-btn" onclick="filterCategory('hostile', this)">Hostile</button>
+        <button class="cat-btn" onclick="filterCategory('boss', this)">Boss</button>
+    </div>
+
+    <!-- PASSIVE -->
+    <div class="category-title" data-cat="passive">Passive Creatures</div>
+
+    <div class="resource-card threat-low" data-cat="passive" data-name="manta ray lizard doeling" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Manta Ray / Lizard Doeling</span>
+            <span><span class="threat-badge badge-low">Passive</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Peaceful flying and ground creatures found throughout the map. Will flee if approached. No threat to pioneers. Can be petted for morale purposes — FICSIT recommends against time waste.</p>
+            <div class="card-section">Drops</div>
+            <div class="tag-list"><span class="tag">None</span></div>
+            <div class="card-section">Found In</div>
+            <ul class="location-list">
+                <li>Grass Fields — Lizard Doelings grazing in open areas</li>
+                <li>Northern Forest — Manta Rays gliding over canopy</li>
+                <li>Dune Desert — various passive fauna</li>
+            </ul>
+            <div class="tip-box">Completely harmless. Ignore and continue production.</div>
+        </div>
+    </div>
+
+    <div class="resource-card threat-low" data-cat="passive" data-name="space rabbit" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Space Rabbit</span>
+            <span><span class="threat-badge badge-low">Passive</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Small burrowing creature. Harmless. Often found near cave entrances. Sometimes drops small items when startled. FICSIT classifies it as non-priority fauna.</p>
+            <div class="card-section">Drops</div>
+            <div class="tag-list"><span class="tag">Beryl Nut (rare)</span></div>
+            <div class="card-section">Found In</div>
+            <ul class="location-list">
+                <li>Grass Fields — burrows near rocks</li>
+                <li>Northern Forest — forest floor</li>
+            </ul>
+            <div class="tip-box">Non-threatening. Resume operations.</div>
+        </div>
+    </div>
+
+    <!-- HOSTILE -->
+    <div class="category-title" data-cat="hostile">Hostile Creatures</div>
+
+    <div class="resource-card threat-medium" data-cat="hostile" data-name="small hog medium hog" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Hog (Small / Medium)</span>
+            <span><span class="threat-badge badge-medium">Hostile</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Aggressive boar-like creatures that charge at pioneers on sight. Medium hogs hit harder and have more health. Territorial — will pursue until you leave their zone.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row">
+                <div class="stat">HP <span>Small: 50 / Medium: 200</span></div>
+                <div class="stat">Damage <span>Small: 10 / Medium: 25</span></div>
+                <div class="stat">Attack <span>Charge</span></div>
+            </div>
+            <div class="card-section">Drops</div>
+            <div class="tag-list">
+                <span class="tag">Hog Protein</span><span class="tag">Alien DNA Capsule</span>
+            </div>
+            <div class="card-section">Found In</div>
+            <ul class="location-list">
+                <li>Grass Fields — common near resource nodes</li>
+                <li>Northern Forest — patrols around iron deposits</li>
+                <li>Rocky Desert — medium hogs more frequent</li>
+            </ul>
+            <div class="tip-box">Xeno-Basher or Iron Rebar dispatches small hogs efficiently. Keep moving to avoid charge.</div>
+        </div>
+    </div>
+
+    <div class="resource-card threat-high" data-cat="hostile" data-name="large hog alpha hog" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Large Hog / Alpha Hog</span>
+            <span><span class="threat-badge badge-high">Dangerous</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Massive territorial predator. The Alpha Hog is the apex version — significantly larger, faster, and more aggressive. Can one-shot an unarmored pioneer. Approach with extreme caution.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row">
+                <div class="stat">HP <span>Large: 500 / Alpha: 1500</span></div>
+                <div class="stat">Damage <span>Large: 50 / Alpha: 150</span></div>
+                <div class="stat">Attack <span>Charge + Stomp</span></div>
+            </div>
+            <div class="card-section">Drops</div>
+            <div class="tag-list">
+                <span class="tag">Hog Protein</span><span class="tag">Alien DNA Capsule</span><span class="tag">Organic Data Capsule (Alpha)</span>
+            </div>
+            <div class="card-section">Found In</div>
+            <ul class="location-list">
+                <li>Dune Desert — Alpha Hogs near pure nodes</li>
+                <li>Red Jungle — large hogs patrolling oil fields</li>
+                <li>Titan Forest — Alpha Hogs guard rare deposits</li>
+            </ul>
+            <div class="warning-box">Do NOT engage Alpha Hog without Hazmat Suit and Rifle. Retreat is always an option — FICSIT values pioneer assets.</div>
+        </div>
+    </div>
+
+    <div class="resource-card threat-medium" data-cat="hostile" data-name="spitter small medium" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Spitter (Small / Medium)</span>
+            <span><span class="threat-badge badge-medium">Hostile</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Ranged alien creatures that spit acid or explosive projectiles. Dangerous from distance. Avoid standing still — they lead their shots.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row">
+                <div class="stat">HP <span>Small: 40 / Medium: 150</span></div>
+                <div class="stat">Damage <span>Small: 15 / Medium: 30</span></div>
+                <div class="stat">Attack <span>Ranged projectile</span></div>
+            </div>
+            <div class="card-section">Drops</div>
+            <div class="tag-list">
+                <span class="tag">Spitter Protein</span><span class="tag">Alien DNA Capsule</span>
+            </div>
+            <div class="card-section">Found In</div>
+            <ul class="location-list">
+                <li>Swamp — near water edges</li>
+                <li>Red Jungle — elevated positions</li>
+                <li>Blue Crater — cave entrances</li>
+            </ul>
+            <div class="tip-box">Stay mobile and close distance quickly. They are weak in melee range.</div>
+        </div>
+    </div>
+
+    <div class="resource-card threat-high" data-cat="hostile" data-name="large spitter alpha spitter" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Large Spitter / Alpha Spitter</span>
+            <span><span class="threat-badge badge-high">Dangerous</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Larger variant with increased range and damage. Alpha Spitters fire explosive bursts that deal area damage. High priority threat in late-game biomes.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row">
+                <div class="stat">HP <span>Large: 400 / Alpha: 1200</span></div>
+                <div class="stat">Damage <span>Large: 60 / Alpha: 100 AoE</span></div>
+                <div class="stat">Attack <span>Explosive burst</span></div>
+            </div>
+            <div class="card-section">Drops</div>
+            <div class="tag-list">
+                <span class="tag">Spitter Protein</span><span class="tag">Alien DNA Capsule</span><span class="tag">Organic Data Capsule (Alpha)</span>
+            </div>
+            <div class="card-section">Found In</div>
+            <ul class="location-list">
+                <li>Titan Forest — Alpha Spitters on elevated ridges</li>
+                <li>Swamp — deep interior zones</li>
+                <li>Red Jungle — canyon walls</li>
+            </ul>
+            <div class="warning-box">Do NOT fight Alpha Spitter at range without cover. Use terrain to break line of sight.</div>
+        </div>
+    </div>
+
+    <div class="resource-card threat-medium" data-cat="hostile" data-name="stinger small medium" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Stinger (Small / Medium)</span>
+            <span><span class="threat-badge badge-medium">Hostile</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Spider-like arthropod that attacks with venom. Moves quickly and can climb surfaces. Often found guarding cave entrances and underground resources.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row">
+                <div class="stat">HP <span>Small: 30 / Medium: 120</span></div>
+                <div class="stat">Damage <span>Small: 8 / Medium: 20 + venom</span></div>
+                <div class="stat">Attack <span>Lunge + venom</span></div>
+            </div>
+            <div class="card-section">Drops</div>
+            <div class="tag-list">
+                <span class="tag">Stinger Protein</span><span class="tag">Alien DNA Capsule</span>
+            </div>
+            <div class="card-section">Found In</div>
+            <ul class="location-list">
+                <li>Cave systems across all biomes</li>
+                <li>Underground resource nodes</li>
+                <li>Swamp — surface nests near water</li>
+            </ul>
+            <div class="tip-box">Carry Medicinal Inhaler when exploring caves. Stingers are faster than they look.</div>
+        </div>
+    </div>
+
+    <div class="resource-card threat-high" data-cat="hostile" data-name="large stinger alpha stinger elite" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Large Stinger / Elite Stinger</span>
+            <span><span class="threat-badge badge-high">Dangerous</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Massive arachnid predator. Elite Stingers have heavily armored carapace and deal severe venom damage. Among the deadliest surface threats on the planet.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row">
+                <div class="stat">HP <span>Large: 600 / Elite: 2000</span></div>
+                <div class="stat">Damage <span>Large: 80 / Elite: 200 + heavy venom</span></div>
+                <div class="stat">Attack <span>Lunge + AoE venom spit</span></div>
+            </div>
+            <div class="card-section">Drops</div>
+            <div class="tag-list">
+                <span class="tag">Stinger Protein</span><span class="tag">Alien DNA Capsule</span><span class="tag">Organic Data Capsule (Elite)</span>
+            </div>
+            <div class="card-section">Found In</div>
+            <ul class="location-list">
+                <li>Deep cave systems — Elite Stingers guard rare deposits</li>
+                <li>Red Jungle — Elite nests in canyon floors</li>
+                <li>Blue Crater — underground chambers</li>
+            </ul>
+            <div class="warning-box">Full armor and multiple Medicinal Inhalers mandatory. Elite Stingers can kill in two hits.</div>
+        </div>
+    </div>
+
+    <div class="resource-card threat-medium" data-cat="hostile" data-name="flying crab" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Flying Crab (Seeker)</span>
+            <span><span class="threat-badge badge-medium">Hostile</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Airborne predator that dives at pioneers from above. Difficult to hit when diving. Has limited health but can be surprising due to aerial approach angle.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row">
+                <div class="stat">HP <span>80</span></div>
+                <div class="stat">Damage <span>25</span></div>
+                <div class="stat">Attack <span>Aerial dive</span></div>
+            </div>
+            <div class="card-section">Drops</div>
+            <div class="tag-list">
+                <span class="tag">Alien Organs</span>
+            </div>
+            <div class="card-section">Found In</div>
+            <ul class="location-list">
+                <li>Northern Forest — canopy level</li>
+                <li>Dune Desert — high altitude patrols</li>
+            </ul>
+            <div class="tip-box">Look up frequently in open areas. Shotgun rounds are effective against dive attacks.</div>
+        </div>
+    </div>
+
+    <!-- BOSS -->
+    <div class="category-title" data-cat="boss">Boss Creatures</div>
+
+    <div class="resource-card threat-boss" data-cat="boss" data-name="nuclear hog" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Nuclear Hog</span>
+            <span><span class="threat-badge badge-boss">Boss</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Irradiated mega-predator found near uranium deposits. Emits constant radiation — Hazmat Suit is mandatory. One of the deadliest creatures on the planet. Do not engage without full late-game equipment.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row">
+                <div class="stat">HP <span>~5000</span></div>
+                <div class="stat">Damage <span>300 + radiation</span></div>
+                <div class="stat">Attack <span>Charge + radiation burst</span></div>
+            </div>
+            <div class="card-section">Drops</div>
+            <div class="tag-list">
+                <span class="tag">Hog Protein</span><span class="tag">Alien DNA Capsule</span><span class="tag">Organic Data Capsule</span><span class="tag">Uranium (area)</span>
+            </div>
+            <div class="card-section">Found In</div>
+            <ul class="location-list">
+                <li>Blue Crater — irradiated zone, uranium fields</li>
+                <li>Swamp — radioactive pools area</li>
+            </ul>
+            <div class="warning-box">Hazmat Suit REQUIRED. Rifle + Explosive Rebar recommended. Maintain maximum distance at all times. FICSIT does not cover medical expenses.</div>
+        </div>
+    </div>
+
+    <div class="resource-card threat-boss" data-cat="boss" data-name="titan lord of the flies" onclick="toggleCard(this)">
+        <div class="card-header">
+            <span class="card-name">Titan (Lord of the Flies)</span>
+            <span><span class="threat-badge badge-boss">Boss</span> <span class="chevron">▶</span></span>
+        </div>
+        <div class="card-body">
+            <p class="card-desc">Enormous creature of unknown classification. Rarely encountered. Its exact nature and origin remain classified by FICSIT. Pioneer reports describe a creature of exceptional size capable of devastating attacks.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row">
+                <div class="stat">HP <span>[CLASSIFIED]</span></div>
+                <div class="stat">Damage <span>[CLASSIFIED]</span></div>
+                <div class="stat">Attack <span>Multiple — classified</span></div>
+            </div>
+            <div class="card-section">Drops</div>
+            <div class="tag-list">
+                <span class="tag">[CLASSIFIED]</span>
+            </div>
+            <div class="card-section">Found In</div>
+            <ul class="location-list">
+                <li>Titan Forest — deep interior, specific coordinates classified</li>
+                <li>Encounter conditions currently under FICSIT investigation</li>
+            </ul>
+            <div class="warning-box">FICSIT strongly advises against engaging this creature. Pioneer survival probability: LOW. Focus on production objectives.</div>
+        </div>
+    </div>
+
+    <br>
+    <a href="/" class="ficsit-btn">[ Back to HUB ]</a>
+
+    <footer>FICSIT Inc. — Waste nothing. Build everything.</footer>
+</div>
+
+<script>
+function toggleCard(card) {
+    var body = card.querySelector('.card-body');
+    var chevron = card.querySelector('.chevron');
+    body.classList.toggle('open');
+    chevron.classList.toggle('open');
+}
+
+function filterResources() {
+    var query = document.getElementById('search').value.toLowerCase();
+    var cards = document.querySelectorAll('.resource-card');
+    cards.forEach(function(card) {
+        var name = card.getAttribute('data-name');
+        card.classList.toggle('hidden', name.indexOf(query) === -1);
+    });
+    updateCategoryTitles();
+}
+
+function filterCategory(cat, btn) {
+    document.querySelectorAll('.cat-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    var cards = document.querySelectorAll('.resource-card');
+    cards.forEach(function(card) {
+        if (cat === 'all') {
+            card.classList.remove('hidden');
+        } else {
+            card.classList.toggle('hidden', card.getAttribute('data-cat') !== cat);
+        }
+    });
+    updateCategoryTitles();
+}
+
+function updateCategoryTitles() {
+    var titles = document.querySelectorAll('.category-title');
+    titles.forEach(function(title) {
+        var cat = title.getAttribute('data-cat');
+        var visible = document.querySelectorAll('.resource-card[data-cat="' + cat + '"]:not(.hidden)');
+        title.style.display = visible.length === 0 ? 'none' : 'block';
+    });
+}
+</script>
+</body>
+</html>

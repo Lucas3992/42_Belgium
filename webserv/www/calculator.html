@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>FICSIT - Production Calculator</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+        .container { max-width: 680px; width: 90%; padding: 40px 20px; }
+        .ficsit-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #fa9414;
+            padding-bottom: 16px;
+        }
+        .ficsit-logo { font-size: 28px; font-weight: 900; color: #fa9414; letter-spacing: 4px; text-transform: uppercase; }
+        .ficsit-tagline { font-size: 11px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+        .separator { width: 40px; height: 3px; background: #fa9414; margin: 16px 0 28px; }
+        .ficsit-box {
+            background: #333;
+            border-left: 5px solid #fa9414;
+            padding: 20px 24px;
+            margin: 20px 0;
+        }
+        .ficsit-box label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fa9414;
+            margin-bottom: 12px;
+        }
+        .ficsit-box input[type="number"] {
+            background: #1a1a1a;
+            border: 1px solid #fa9414;
+            color: #f0f0f0;
+            padding: 10px 14px;
+            font-size: 16px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            width: 100%;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .ficsit-box input[type="number"]:focus {
+            border-color: #fff;
+        }
+        .ficsit-box input[type="number"]::-webkit-inner-spin-button {
+            opacity: 1;
+            filter: invert(1);
+        }
+        .btn-row { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+        footer { margin-top: 40px; font-size: 11px; color: #444; text-transform: uppercase; letter-spacing: 2px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" style="text-decoration:none;">
+    <div class="ficsit-header">
+            <div>
+                <div class="ficsit-logo">FICSIT Inc.</div>
+                <div class="ficsit-tagline">Production Optimization — Smart Plating Module</div>
+            </div>
+    </div>
+</a>
+        <h1>Production Calculator</h1>
+        <div class="separator"></div>
+
+        <form method="POST" action="/cgi/calculator.py">
+            <div class="ficsit-box">
+                <label for="quantity">Target output — Smart Platings / min</label>
+                <input type="number" id="quantity" name="quantity" min="1" required placeholder="Enter quantity...">
+            </div>
+            <div class="btn-row">
+                <input type="submit" value="Calculate" class="ficsit-btn" style="cursor:pointer; font-family: inherit;">
+                <a href="/" class="ficsit-btn">[ Back to HUB ]</a>
+            </div>
+        </form>
+
+        <footer>FICSIT Inc. — Waste nothing. Build everything.</footer>
+    </div>
+</body>
+</html>

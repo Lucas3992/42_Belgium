@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>FICSIT - Item Catalog</title>
+    <style>
+        body { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding-top:60px; margin:0; }
+        .container { max-width:860px; width:90%; padding:0 20px 60px; }
+        .ficsit-header { display:flex; align-items:center; gap:16px; margin-bottom:32px; border-bottom:2px solid #fa9414; padding-bottom:16px; }
+        .ficsit-logo { font-size:28px; font-weight:900; color:#fa9414; letter-spacing:4px; text-transform:uppercase; }
+        .ficsit-tagline { font-size:11px; color:#888; letter-spacing:2px; text-transform:uppercase; }
+        .separator { width:40px; height:3px; background:#fa9414; margin:0 0 28px; }
+        .search-bar { width:100%; box-sizing:border-box; background:#1a1a1a; border:1px solid #fa9414; color:#f0f0f0; padding:10px 16px; font-size:14px; font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; margin-bottom:28px; outline:none; }
+        .search-bar::placeholder { color:#555; }
+        .category-nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:32px; }
+        .cat-btn { font-size:11px; text-transform:uppercase; letter-spacing:1px; padding:5px 14px; border:1px solid #fa9414; color:#fa9414; background:transparent; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+        .cat-btn:hover, .cat-btn.active { background:#fa9414; color:#1a1a1a; }
+        .category-title { font-size:11px; text-transform:uppercase; letter-spacing:3px; color:#fa9414; margin:36px 0 12px; padding-bottom:8px; border-bottom:1px solid #333; }
+        .resource-card { background:#222; border-left:4px solid #fa9414; margin-bottom:16px; cursor:pointer; transition:background 0.2s; }
+        .resource-card:hover { background:#2a2a2a; }
+        .resource-card.hidden { display:none; }
+        .tier-1 { border-left-color:#4a9; }
+        .tier-2 { border-left-color:#69a; }
+        .tier-3 { border-left-color:#fa9414; }
+        .tier-4 { border-left-color:#a4a; }
+        .card-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; }
+        .card-name { font-size:15px; font-weight:600; color:#f0f0f0; }
+        .tier-badge { font-size:10px; text-transform:uppercase; letter-spacing:2px; padding:3px 10px; border-radius:2px; }
+        .badge-t1 { background:#1a2a20; color:#4a9; border:1px solid #4a9; }
+        .badge-t2 { background:#1a1a2a; color:#69a; border:1px solid #69a; }
+        .badge-t3 { background:#2a2010; color:#fa9414; border:1px solid #fa9414; }
+        .badge-t4 { background:#1a1020; color:#a4a; border:1px solid #a4a; }
+        .card-body { display:none; padding:0 18px 16px; border-top:1px solid #333; }
+        .card-body.open { display:block; }
+        .card-desc { font-size:13px; color:#aaa; margin:12px 0; line-height:1.6; }
+        .card-section { font-size:10px; text-transform:uppercase; letter-spacing:2px; color:#fa9414; margin:14px 0 6px; }
+        .recipe-box { background:#1a1a1a; border:1px solid #333; padding:10px 14px; font-size:12px; color:#ccc; font-family:'Courier New',monospace; margin-bottom:4px; }
+        .recipe-box .arrow { color:#fa9414; margin:0 8px; }
+        .tag-list { display:flex; flex-wrap:wrap; gap:6px; }
+        .tag { font-size:11px; padding:3px 10px; background:#333; color:#ccc; border:1px solid #444; }
+        .chevron { color:#fa9414; font-size:12px; transition:transform 0.2s; }
+        .chevron.open { transform:rotate(90deg); }
+        footer { margin-top:48px; font-size:11px; color:#444; text-transform:uppercase; letter-spacing:2px; border-top:1px solid #2a2a2a; padding-top:16px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/" style="text-decoration:none;">
+    <div class="ficsit-header">
+        <div>
+            <div class="ficsit-logo">FICSIT Inc.</div>
+            <div class="ficsit-tagline">Item Catalog — Manufacturing and Logistics Division</div>
+        </div>
+    </div>
+    </a>
+    <div class="ficsit-header">
+    </div>
+    <h1>Item Catalog</h1>
+    <div class="separator"></div>
+    <input class="search-bar" type="text" id="search" placeholder="Search items..." oninput="filterResources()">
+    <div class="category-nav">
+        <button class="cat-btn active" onclick="filterCategory('all',this)">All</button>
+        <button class="cat-btn" onclick="filterCategory('basic',this)">Basic Parts</button>
+        <button class="cat-btn" onclick="filterCategory('standard',this)">Standard Parts</button>
+        <button class="cat-btn" onclick="filterCategory('industrial',this)">Industrial Parts</button>
+        <button class="cat-btn" onclick="filterCategory('advanced',this)">Advanced Parts</button>
+        <button class="cat-btn" onclick="filterCategory('electronic',this)">Electronics</button>
+        <button class="cat-btn" onclick="filterCategory('fuel',this)">Fuels</button>
+        <button class="cat-btn" onclick="filterCategory('nuclear',this)">Nuclear</button>
+    </div>
+
+    <div class="category-title" data-cat="basic">Basic Parts</div>
+
+    <div class="resource-card tier-1" data-cat="basic" data-name="iron ingot" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Iron Ingot</span><span><span class="tier-badge badge-t1">Tier 1</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Base metal smelted from Iron Ore. Foundation of virtually every early-game chain. Required in enormous quantities — plan accordingly.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Iron Ore (30/min) <span class="arrow">→</span> Iron Ingot (30/min) — Smelter</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Iron Rod</span><span class="tag">Iron Plate</span><span class="tag">Screw</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-1" data-cat="basic" data-name="copper ingot" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Copper Ingot</span><span><span class="tier-badge badge-t1">Tier 1</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Refined copper metal. Essential for all electrical components. Second most important early-game ingot after iron.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Copper Ore (30/min) <span class="arrow">→</span> Copper Ingot (30/min) — Smelter</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Wire</span><span class="tag">Copper Sheet</span><span class="tag">Cable</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-1" data-cat="basic" data-name="concrete" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Concrete</span><span><span class="tier-badge badge-t1">Tier 1</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Structural material made from Limestone. Used in construction and mid-game parts. Extremely cheap to produce at scale.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Limestone (45/min) <span class="arrow">→</span> Concrete (15/min) — Constructor</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Versatile Framework</span><span class="tag">Encased Industrial Beam</span><span class="tag">Buildings</span></div>
+        </div>
+    </div>
+
+    <div class="category-title" data-cat="standard">Standard Parts</div>
+
+    <div class="resource-card tier-1" data-cat="standard" data-name="iron rod" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Iron Rod</span><span><span class="tier-badge badge-t1">Tier 1</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Basic structural rod. Used in a huge variety of components from screws to rotors.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Iron Ingot (15/min) <span class="arrow">→</span> Iron Rod (15/min) — Constructor</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Screw</span><span class="tag">Rotor</span><span class="tag">Iron Rebar</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-1" data-cat="standard" data-name="iron plate" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Iron Plate</span><span><span class="tier-badge badge-t1">Tier 1</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Flat metal plate. High-demand early part used in reinforced plates and structural frames.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Iron Ingot (30/min) <span class="arrow">→</span> Iron Plate (20/min) — Constructor</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Reinforced Iron Plate</span><span class="tag">Encased Industrial Beam</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-1" data-cat="standard" data-name="screw" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Screw</span><span><span class="tier-badge badge-t1">Tier 1</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Tiny fastener produced in large quantities. Used in almost every mechanical assembly. Always produce more than you think you need.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Iron Rod (10/min) <span class="arrow">→</span> Screw (40/min) — Constructor</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Reinforced Iron Plate</span><span class="tag">Rotor</span><span class="tag">Modular Frame</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-1" data-cat="standard" data-name="wire" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Wire</span><span><span class="tier-badge badge-t1">Tier 1</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Basic electrical conductor. Foundation of all electrical systems.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Copper Ingot (15/min) <span class="arrow">→</span> Wire (30/min) — Constructor</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Cable</span><span class="tag">Stator</span><span class="tag">Circuit Board</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-1" data-cat="standard" data-name="cable" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Cable</span><span><span class="tier-badge badge-t1">Tier 1</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Bundled wire for power and data transmission. Required for motors, computers, and infrastructure construction.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Wire (60/min) <span class="arrow">→</span> Cable (30/min) — Constructor</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Motor</span><span class="tag">Computer</span><span class="tag">High-Speed Connector</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-2" data-cat="standard" data-name="reinforced iron plate" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Reinforced Iron Plate</span><span><span class="tier-badge badge-t2">Tier 2</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Structural plate reinforced with screws. Milestone gateway component — needed in large quantities for progression.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Iron Plate (30/min) + Screw (60/min) <span class="arrow">→</span> RIP (5/min) — Assembler</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Modular Frame</span><span class="tag">Smart Plating</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-2" data-cat="standard" data-name="rotor" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Rotor</span><span><span class="tier-badge badge-t2">Tier 2</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Rotating mechanical component. Core part of motors and other rotating assemblies.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Iron Rod (20/min) + Screw (100/min) <span class="arrow">→</span> Rotor (4/min) — Assembler</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Motor</span><span class="tag">Smart Plating</span></div>
+        </div>
+    </div>
+
+    <div class="category-title" data-cat="industrial">Industrial Parts</div>
+
+    <div class="resource-card tier-2" data-cat="industrial" data-name="modular frame" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Modular Frame</span><span><span class="tier-badge badge-t2">Tier 2</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Structural frame assembly used in heavy industrial components. One of the most demanded parts for mid-game milestones.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">RIP (3/min) + Iron Rod (12/min) <span class="arrow">→</span> Modular Frame (2/min) — Assembler</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Versatile Framework</span><span class="tag">Heavy Modular Frame</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-2" data-cat="industrial" data-name="steel ingot steel pipe steel beam" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Steel Ingot / Pipe / Beam</span><span><span class="tier-badge badge-t2">Tier 2</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Steel is an alloy of Iron and Coal. Much stronger than iron — unlocks a new tier of construction and parts.</p>
+            <div class="card-section">Recipes</div>
+            <div class="recipe-box">Iron Ore + Coal <span class="arrow">→</span> Steel Ingot — Foundry</div>
+            <div class="recipe-box">Steel Ingot <span class="arrow">→</span> Steel Pipe / Steel Beam — Constructor</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Encased Industrial Beam</span><span class="tag">Heavy Modular Frame</span><span class="tag">Stator</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-3" data-cat="industrial" data-name="heavy modular frame" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Heavy Modular Frame</span><span><span class="tier-badge badge-t3">Tier 3</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Massive structural frame for late-stage industrial machines. One of the most complex and resource-intensive parts.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Modular Frame + Steel Pipe + Encased Industrial Beam + Screw <span class="arrow">→</span> HMF — Manufacturer</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Fused Modular Frame</span><span class="tag">Turbo Motor</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-3" data-cat="industrial" data-name="motor" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Motor</span><span><span class="tier-badge badge-t3">Tier 3</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Electrical motor assembly. Core component of conveyors, drones, and advanced machinery.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Rotor (10/min) + Stator (10/min) <span class="arrow">→</span> Motor (5/min) — Assembler</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Turbo Motor</span><span class="tag">Drone</span><span class="tag">Modular Engine</span></div>
+        </div>
+    </div>
+
+    <div class="category-title" data-cat="advanced">Advanced Parts</div>
+
+    <div class="resource-card tier-3" data-cat="advanced" data-name="smart plating" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Smart Plating</span><span><span class="tier-badge badge-t3">Tier 3</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Milestone component combining Reinforced Iron Plate and Rotor. Gateway to mid-game progression.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">RIP (2/min) + Rotor (2/min) <span class="arrow">→</span> Smart Plating (2/min) — Assembler</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Space Elevator Phase 1</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-4" data-cat="advanced" data-name="turbo motor" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Turbo Motor</span><span><span class="tier-badge badge-t4">Tier 4</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">High-performance motor combining Cooling System and Motor assemblies. Requires nitrogen gas infrastructure. Peak mechanical engineering.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Cooling System + Motor + Rubber + Fused Modular Frame <span class="arrow">→</span> Turbo Motor — Manufacturer</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Space Elevator Phase 4</span><span class="tag">Drone</span></div>
+        </div>
+    </div>
+
+    <div class="category-title" data-cat="electronic">Electronics</div>
+
+    <div class="resource-card tier-2" data-cat="electronic" data-name="circuit board" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Circuit Board</span><span><span class="tier-badge badge-t2">Tier 2</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Basic electronic board. Gateway component to computers and advanced automation. Requires oil refining for plastic.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Copper Sheet (15/min) + Plastic (30/min) <span class="arrow">→</span> Circuit Board (7.5/min) — Assembler</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Computer</span><span class="tag">AI Limiter</span><span class="tag">High-Speed Connector</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-3" data-cat="electronic" data-name="computer" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Computer</span><span><span class="tier-badge badge-t3">Tier 3</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Complex electronic assembly. Required for automated mining drills and advanced manufacturing.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Circuit Board + Cable + Plastic + Screw <span class="arrow">→</span> Computer — Manufacturer</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Supercomputer</span><span class="tag">Programmable Splitter</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-4" data-cat="electronic" data-name="supercomputer" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Supercomputer</span><span><span class="tier-badge badge-t4">Tier 4</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Ultimate computing platform. Pinnacle of FICSIT electronic engineering.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Computer + AI Limiter + High-Speed Connector + Cooling System <span class="arrow">→</span> Supercomputer — Manufacturer</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Quantum Computer</span><span class="tag">Space Elevator Phase 4</span></div>
+        </div>
+    </div>
+
+    <div class="category-title" data-cat="fuel">Fuels</div>
+
+    <div class="resource-card tier-1" data-cat="fuel" data-name="solid biofuel biomass" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Solid Biofuel / Biomass</span><span><span class="tier-badge badge-t1">Tier 1</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Early-game fuel from organic material. Used in Biomass Burners for initial power. Replace with coal as soon as possible.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Leaves / Wood / Mycelia <span class="arrow">→</span> Biomass <span class="arrow">→</span> Solid Biofuel — Constructor</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Biomass Burner</span><span class="tag">Chainsaw</span></div>
+        </div>
+    </div>
+
+    <div class="resource-card tier-2" data-cat="fuel" data-name="fuel turbofuel" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Fuel / Turbofuel</span><span><span class="tier-badge badge-t2">Tier 2</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Refined petroleum fuels. Turbofuel has much higher energy density — ideal for late-game power generation.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Crude Oil <span class="arrow">→</span> Fuel — Refinery</div>
+            <div class="recipe-box">Fuel + Compacted Coal <span class="arrow">→</span> Turbofuel — Refinery</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Fuel Generator</span><span class="tag">Jetpack</span><span class="tag">Hover Pack</span></div>
+        </div>
+    </div>
+
+    <div class="category-title" data-cat="nuclear">Nuclear</div>
+
+    <div class="resource-card tier-4" data-cat="nuclear" data-name="uranium fuel rod plutonium fuel rod" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Uranium / Plutonium Fuel Rod</span><span><span class="tier-badge badge-t4">Tier 4</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Nuclear fuel assemblies for power generation. Produces enormous amounts of power but generates radioactive waste. Requires full hazmat infrastructure.</p>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Uranium / Plutonium + Encased Cells + EM Control Rod <span class="arrow">→</span> Fuel Rod — Manufacturer</div>
+            <div class="card-section">Used In</div>
+            <div class="tag-list"><span class="tag">Nuclear Power Plant</span></div>
+        </div>
+    </div>
+
+    <br>
+    <a href="/" class="ficsit-btn">[ Back to HUB ]</a>
+    <footer>FICSIT Inc. — Waste nothing. Build everything.</footer>
+</div>
+<script>
+function toggleCard(card){var body=card.querySelector('.card-body');var chevron=card.querySelector('.chevron');body.classList.toggle('open');chevron.classList.toggle('open');}
+function filterResources(){var query=document.getElementById('search').value.toLowerCase();document.querySelectorAll('.resource-card').forEach(function(card){card.classList.toggle('hidden',card.getAttribute('data-name').indexOf(query)===-1);});updateCategoryTitles();}
+function filterCategory(cat,btn){document.querySelectorAll('.cat-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');document.querySelectorAll('.resource-card').forEach(function(card){card.classList.toggle('hidden',cat!=='all'&&card.getAttribute('data-cat')!==cat);});updateCategoryTitles();}
+function updateCategoryTitles(){document.querySelectorAll('.category-title').forEach(function(title){var cat=title.getAttribute('data-cat');title.style.display=document.querySelectorAll('.resource-card[data-cat="'+cat+'"]:not(.hidden)').length===0?'none':'block';});}
+</script>
+</body>
+</html>

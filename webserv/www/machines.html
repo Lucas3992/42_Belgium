@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>FICSIT - Machine Catalog</title>
+    <style>
+        body { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding-top:60px; margin:0; }
+        .container { max-width:860px; width:90%; padding:0 20px 60px; }
+        .ficsit-header { display:flex; align-items:center; gap:16px; margin-bottom:32px; border-bottom:2px solid #fa9414; padding-bottom:16px; }
+        .ficsit-logo { font-size:28px; font-weight:900; color:#fa9414; letter-spacing:4px; text-transform:uppercase; }
+        .ficsit-tagline { font-size:11px; color:#888; letter-spacing:2px; text-transform:uppercase; }
+        .separator { width:40px; height:3px; background:#fa9414; margin:0 0 28px; }
+        .search-bar { width:100%; box-sizing:border-box; background:#1a1a1a; border:1px solid #fa9414; color:#f0f0f0; padding:10px 16px; font-size:14px; font-family:'Segoe UI',sans-serif; margin-bottom:28px; outline:none; }
+        .search-bar::placeholder { color:#555; }
+        .category-nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:32px; }
+        .cat-btn { font-size:11px; text-transform:uppercase; letter-spacing:1px; padding:5px 14px; border:1px solid #fa9414; color:#fa9414; background:transparent; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+        .cat-btn:hover, .cat-btn.active { background:#fa9414; color:#1a1a1a; }
+        .category-title { font-size:11px; text-transform:uppercase; letter-spacing:3px; color:#fa9414; margin:36px 0 12px; padding-bottom:8px; border-bottom:1px solid #333; }
+        .resource-card { background:#222; margin-bottom:16px; cursor:pointer; transition:background 0.2s; }
+        .resource-card:hover { background:#2a2a2a; }
+        .resource-card.hidden { display:none; }
+        .cat-extraction  { border-left:4px solid #4a9; }
+        .cat-production  { border-left:4px solid #fa9414; }
+        .cat-power       { border-left:4px solid #fc4; }
+        .cat-logistics   { border-left:4px solid #69a; }
+        .cat-special     { border-left:4px solid #a4a; }
+        .card-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; }
+        .card-name { font-size:15px; font-weight:600; color:#f0f0f0; }
+        .cat-badge { font-size:10px; text-transform:uppercase; letter-spacing:2px; padding:3px 10px; border-radius:2px; }
+        .badge-extraction  { background:#1a2a20; color:#4a9; border:1px solid #4a9; }
+        .badge-production  { background:#2a2010; color:#fa9414; border:1px solid #fa9414; }
+        .badge-power       { background:#2a2200; color:#fc4; border:1px solid #fc4; }
+        .badge-logistics   { background:#1a1a2a; color:#69a; border:1px solid #69a; }
+        .badge-special     { background:#1a1020; color:#a4a; border:1px solid #a4a; }
+        .card-body { display:none; padding:0 18px 16px; border-top:1px solid #333; }
+        .card-body.open { display:block; }
+        .card-desc { font-size:13px; color:#aaa; margin:12px 0; line-height:1.6; }
+        .card-section { font-size:10px; text-transform:uppercase; letter-spacing:2px; color:#fa9414; margin:14px 0 6px; }
+        .stat-row { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:8px; }
+        .stat { background:#333; padding:6px 12px; font-size:12px; color:#ccc; }
+        .stat span { color:#fa9414; font-weight:bold; }
+        .recipe-box { background:#1a1a1a; border:1px solid #333; padding:10px 14px; font-size:12px; color:#ccc; font-family:'Courier New',monospace; margin-bottom:4px; }
+        .recipe-box .arrow { color:#fa9414; margin:0 8px; }
+        .tag-list { display:flex; flex-wrap:wrap; gap:6px; }
+        .tag { font-size:11px; padding:3px 10px; background:#333; color:#ccc; border:1px solid #444; }
+        .tip-box { background:#1a2010; border-left:3px solid #4a9; padding:10px 14px; margin-top:12px; font-size:12px; color:#8c8; }
+        .tip-box::before { content:"FIELD TIP: "; color:#4a9; font-weight:bold; letter-spacing:1px; }
+        .warning-box { background:#2a1010; border-left:3px solid #c44; padding:10px 14px; margin-top:12px; font-size:12px; color:#c88; }
+        .warning-box::before { content:"WARNING: "; color:#c44; font-weight:bold; letter-spacing:1px; }
+        .chevron { color:#fa9414; font-size:12px; transition:transform 0.2s; }
+        .chevron.open { transform:rotate(90deg); }
+        footer { margin-top:48px; font-size:11px; color:#444; text-transform:uppercase; letter-spacing:2px; border-top:1px solid #2a2a2a; padding-top:16px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="/" style="text-decoration:none;">
+    <div class="ficsit-header">
+        <div>
+            <div class="ficsit-logo">FICSIT Inc.</div>
+            <div class="ficsit-tagline">Machine Catalog — Industrial Automation Division</div>
+        </div>
+    </div>
+</a>
+    <h1>Machine Catalog</h1>
+    <div class="separator"></div>
+    <input class="search-bar" type="text" id="search" placeholder="Search machines..." oninput="filterResources()">
+    <div class="category-nav">
+        <button class="cat-btn active" onclick="filterCategory('all',this)">All</button>
+        <button class="cat-btn" onclick="filterCategory('extraction',this)">Extraction</button>
+        <button class="cat-btn" onclick="filterCategory('production',this)">Production</button>
+        <button class="cat-btn" onclick="filterCategory('power',this)">Power</button>
+        <button class="cat-btn" onclick="filterCategory('logistics',this)">Logistics</button>
+        <button class="cat-btn" onclick="filterCategory('special',this)">Special</button>
+    </div>
+
+    <!-- EXTRACTION -->
+    <div class="category-title" data-cat="extraction">Extraction</div>
+
+    <div class="resource-card cat-extraction" data-cat="extraction" data-name="miner mk1 mk2 mk3" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Miner (Mk.1 / Mk.2 / Mk.3)</span><span><span class="cat-badge badge-extraction">Extraction</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Automated ore extraction machine placed on resource nodes. Each tier doubles the output rate. The backbone of all raw material supply chains.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row">
+                <div class="stat">Mk.1 <span>60/min (normal node)</span></div>
+                <div class="stat">Mk.2 <span>120/min</span></div>
+                <div class="stat">Mk.3 <span>240/min</span></div>
+            </div>
+            <div class="stat-row">
+                <div class="stat">Power <span>5 / 12 / 30 MW</span></div>
+            </div>
+            <div class="card-section">Recipe (Mk.1)</div>
+            <div class="recipe-box">Iron Plate + Concrete + Iron Rod + Cable <span class="arrow">→</span> Miner Mk.1 — Equipment Workshop</div>
+            <div class="tip-box">Always place Miners on pure nodes first — pure nodes give 2x output automatically.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-extraction" data-cat="extraction" data-name="water extractor" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Water Extractor</span><span><span class="cat-badge badge-extraction">Extraction</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Extracts water from any body of water. Must be placed directly on water surface. No node required — can be placed anywhere water exists. Outputs via pipe.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Output <span>120 m³/min</span></div><div class="stat">Power <span>20 MW</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Iron Plate + Iron Rod + Rotor + Cable <span class="arrow">→</span> Water Extractor</div>
+            <div class="tip-box">Place multiple Extractors in large lakes for high-volume aluminium or nuclear production.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-extraction" data-cat="extraction" data-name="oil extractor" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Oil Extractor</span><span><span class="cat-badge badge-extraction">Extraction</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Extracts Crude Oil from oil resource nodes. Outputs via pipeline. Foundation of the petroleum and plastic production chains.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Output <span>60 m³/min (normal)</span></div><div class="stat">Power <span>40 MW</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Steel Pipe + Modular Frame + Motor + Computer <span class="arrow">→</span> Oil Extractor</div>
+            <div class="tip-box">Build pipelines before placing extractors — oil needs immediate transport or it backs up.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-extraction" data-cat="extraction" data-name="resource well pressurizer extractor" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Resource Well Pressurizer</span><span><span class="cat-badge badge-extraction">Extraction</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Central unit placed on resource wells (nitrogen gas, etc). Activates all satellite extractors around the well. Required for nitrogen gas collection.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Power <span>150 MW</span></div><div class="stat">Requires <span>Satellite extractors</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Heavy Modular Frame + Motor + Computer + Rubber <span class="arrow">→</span> Well Pressurizer — Manufacturer</div>
+            <div class="warning-box">High power draw. Ensure sufficient power capacity before activating.</div>
+        </div>
+    </div>
+
+    <!-- PRODUCTION -->
+    <div class="category-title" data-cat="production">Production</div>
+
+    <div class="resource-card cat-production" data-cat="production" data-name="smelter" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Smelter</span><span><span class="cat-badge badge-production">Production</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Basic smelting machine. Converts raw ore into ingots. Handles one input and one output. The first production machine unlocked. Always build in large numbers.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Inputs <span>1</span></div><div class="stat">Outputs <span>1</span></div><div class="stat">Power <span>4 MW</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Iron Rod + Wire + Concrete <span class="arrow">→</span> Smelter</div>
+            <div class="tip-box">Pair one Miner Mk.1 with two Smelters on iron for a perfectly balanced early line.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-production" data-cat="production" data-name="foundry" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Foundry</span><span><span class="cat-badge badge-production">Production</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Advanced smelting machine handling two inputs. Used for alloy recipes like Steel Ingots (Iron + Coal). Larger and more powerful than the Smelter.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Inputs <span>2</span></div><div class="stat">Outputs <span>1</span></div><div class="stat">Power <span>16 MW</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Modular Frame + Rotor + Concrete <span class="arrow">→</span> Foundry</div>
+            <div class="tip-box">Steel production is the primary use. Plan coal supply chains before building Foundries.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-production" data-cat="production" data-name="constructor" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Constructor</span><span><span class="cat-badge badge-production">Production</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Single-input single-output manufacturing machine. Handles basic part construction (rods, plates, wire, etc). Your most-used machine in early and mid game.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Inputs <span>1</span></div><div class="stat">Outputs <span>1</span></div><div class="stat">Power <span>4 MW</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Iron Rod + Wire + Reinforced Iron Plate <span class="arrow">→</span> Constructor</div>
+            <div class="tip-box">You will build hundreds of these. Automate their production early.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-production" data-cat="production" data-name="assembler" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Assembler</span><span><span class="cat-badge badge-production">Production</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Two-input one-output production machine. Used for mid-game complex parts like Reinforced Iron Plates, Rotors, Circuit Boards, and Motors. Step up from Constructor.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Inputs <span>2</span></div><div class="stat">Outputs <span>1</span></div><div class="stat">Power <span>15 MW</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Reinforced Iron Plate + Rotor + Cable <span class="arrow">→</span> Assembler</div>
+            <div class="tip-box">Most milestone parts require Assemblers. Plan factory layout for two belt inputs per machine.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-production" data-cat="production" data-name="manufacturer" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Manufacturer</span><span><span class="cat-badge badge-production">Production</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Four-input one-output production machine for complex late-game parts. Produces Heavy Modular Frames, Computers, Supercomputers, and more. High power draw.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Inputs <span>4</span></div><div class="stat">Outputs <span>1</span></div><div class="stat">Power <span>55 MW</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Motor + Heavy Modular Frame + Cable + Computer <span class="arrow">→</span> Manufacturer</div>
+            <div class="warning-box">Managing four belt inputs requires careful factory layout planning. Allow extra space around each Manufacturer.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-production" data-cat="production" data-name="refinery" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Refinery</span><span><span class="cat-badge badge-production">Production</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Processes fluids and mixed fluid/solid recipes. Essential for all oil-based production (Plastic, Rubber, Fuel). Uses both conveyor belts and pipelines.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Inputs <span>1 belt + 1 pipe</span></div><div class="stat">Outputs <span>1 belt + 1 pipe</span></div><div class="stat">Power <span>30 MW</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Motor + Encased Industrial Beam + Steel Pipe + Computer <span class="arrow">→</span> Refinery</div>
+            <div class="tip-box">Always process Heavy Oil Residue — leaving it unbottlenecked stops the whole refinery.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-production" data-cat="production" data-name="blender" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Blender</span><span><span class="cat-badge badge-production">Production</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Late-game fluid-mixing machine. Handles recipes requiring multiple fluids and solids simultaneously. Used for Cooling Systems, Batteries, Nitric Acid, and more.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Inputs <span>2 belts + 2 pipes</span></div><div class="stat">Outputs <span>1 belt + 1 pipe</span></div><div class="stat">Power <span>75 MW</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Motor + Heavy Modular Frame + Alclad Sheet + Computer <span class="arrow">→</span> Blender</div>
+            <div class="tip-box">Essential for Turbo Motor and Battery production. Plan pipeline networks before building Blenders.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-production" data-cat="production" data-name="particle accelerator" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Particle Accelerator</span><span><span class="cat-badge badge-production">Production</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Endgame production machine for the most advanced recipes including Nuclear Pasta and Plutonium. Enormous power draw. Only a handful needed but they dominate your power budget.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Power <span>500-1500 MW</span></div><div class="stat">Tier <span>Endgame</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Supercomputer + Electromagnetic Control Rod + Cooling System + Fused Modular Frame <span class="arrow">→</span> Particle Accelerator</div>
+            <div class="warning-box">Each Particle Accelerator requires its own dedicated power infrastructure. Plan accordingly before construction.</div>
+        </div>
+    </div>
+
+    <!-- POWER -->
+    <div class="category-title" data-cat="power">Power</div>
+
+    <div class="resource-card cat-power" data-cat="power" data-name="biomass burner" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Biomass Burner</span><span><span class="cat-badge badge-power">Power</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">First power generator. Burns organic fuel (Solid Biofuel, Leaves, Wood). Must be manually refueled. Replace with Coal Generators as soon as possible.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Output <span>30 MW</span></div><div class="stat">Fuel <span>Solid Biofuel / Biomass</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Iron Plate + Iron Rod + Wire <span class="arrow">→</span> Biomass Burner</div>
+            <div class="tip-box">Build 5-6 immediately at game start. Then prioritize unlocking Coal Generators.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-power" data-cat="power" data-name="coal generator" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Coal Generator</span><span><span class="cat-badge badge-power">Power</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">First automated power generator. Burns Coal and requires Water cooling. Fully automated — just supply coal and water continuously. Mid-game power backbone.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Output <span>75 MW</span></div><div class="stat">Coal <span>15/min</span></div><div class="stat">Water <span>45 m³/min</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Reinforced Iron Plate + Rotor + Cable + Concrete <span class="arrow">→</span> Coal Generator</div>
+            <div class="tip-box">Build in clusters of 8-10. One Miner Mk.2 on a normal coal node feeds ~8 generators.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-power" data-cat="power" data-name="fuel generator" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Fuel Generator</span><span><span class="cat-badge badge-power">Power</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Burns liquid fuel (Fuel, Turbofuel, Liquid Biofuel). Much higher power output than coal. Requires pipeline infrastructure. The preferred late-game power source before nuclear.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Output <span>150 MW (Fuel) / 300 MW (Turbofuel)</span></div><div class="stat">Fuel <span>Via pipeline</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Modular Frame + Motor + Steel Pipe + Rubber <span class="arrow">→</span> Fuel Generator</div>
+            <div class="tip-box">Turbofuel roughly doubles output per generator — worth the extra Sulfur investment.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-power" data-cat="power" data-name="nuclear power plant" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Nuclear Power Plant</span><span><span class="cat-badge badge-power">Power</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Endgame power generator using Uranium or Plutonium Fuel Rods. Produces massive power but generates radioactive waste that must be processed or stored. Requires full hazmat infrastructure.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Output <span>2500 MW</span></div><div class="stat">Waste <span>Uranium Waste / cycle</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Heavy Modular Frame + Computer + Alclad Sheet + Concrete <span class="arrow">→</span> Nuclear Power Plant</div>
+            <div class="warning-box">Uranium Waste accumulates and must be processed. Build waste storage or Plutonium processing BEFORE activating reactors.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-power" data-cat="power" data-name="geo thermal generator" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Geo Thermal Generator</span><span><span class="cat-badge badge-power">Power</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Placed on natural geysers. Generates free power with no fuel cost. Variable output depends on geyser quality. One of the most efficient power sources when geysers are available.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Output <span>100-400 MW (variable)</span></div><div class="stat">Fuel <span>None</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Motor + Heavy Modular Frame + Cable + Steel Pipe <span class="arrow">→</span> Geo Thermal Generator</div>
+            <div class="tip-box">Claim every geyser early. Free power locations are limited and extremely valuable.</div>
+        </div>
+    </div>
+
+    <!-- LOGISTICS -->
+    <div class="category-title" data-cat="logistics">Logistics</div>
+
+    <div class="resource-card cat-logistics" data-cat="logistics" data-name="conveyor belt mk1 mk2 mk3 mk4 mk5" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Conveyor Belt (Mk.1 — Mk.5)</span><span><span class="cat-badge badge-logistics">Logistics</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Primary item transport system. Each tier doubles throughput. The veins of your factory. Always upgrade belts when production bottlenecks occur.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row">
+                <div class="stat">Mk.1 <span>60/min</span></div>
+                <div class="stat">Mk.2 <span>120/min</span></div>
+                <div class="stat">Mk.3 <span>270/min</span></div>
+                <div class="stat">Mk.4 <span>480/min</span></div>
+                <div class="stat">Mk.5 <span>780/min</span></div>
+            </div>
+            <div class="tip-box">If a belt is backing up, upgrade it or add a parallel line — never restrict input to the machine.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-logistics" data-cat="logistics" data-name="splitter merger" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Splitter / Merger</span><span><span class="cat-badge badge-logistics">Logistics</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Splitters divide one belt into three outputs. Mergers combine up to three belts into one. Essential for load balancing and distributing materials across parallel production lines.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Splitter <span>1 in → 3 out</span></div><div class="stat">Merger <span>3 in → 1 out</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Iron Plate + Iron Rod + Screw <span class="arrow">→</span> Splitter / Merger</div>
+            <div class="tip-box">Use Smart Splitters later to filter specific items onto dedicated lines.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-logistics" data-cat="logistics" data-name="pipeline mk1 mk2 pump valve" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Pipeline (Mk.1 / Mk.2) + Pump</span><span><span class="cat-badge badge-logistics">Logistics</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Transports liquids and gases. Mk.2 has double throughput. Pipeline Pumps boost flow over long distances or uphill. Required for all fluid-based production chains.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Mk.1 <span>300 m³/min</span></div><div class="stat">Mk.2 <span>600 m³/min</span></div></div>
+            <div class="card-section">Recipe (Mk.1)</div>
+            <div class="recipe-box">Iron Plate + Copper Sheet <span class="arrow">→</span> Pipeline Mk.1</div>
+            <div class="tip-box">Pipelines flow downhill for free. Use elevation strategically to reduce pump requirements.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-logistics" data-cat="logistics" data-name="drone port" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Drone Port</span><span><span class="cat-badge badge-logistics">Logistics</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Automated drone transport hub. Drones carry items between two ports at high speed over any terrain. Ideal for transporting rare resources from remote locations.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Fuel <span>Packaged Fuel (drone)</span></div><div class="stat">Range <span>Unlimited</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Computer + Steel Pipe + Motor + Rubber <span class="arrow">→</span> Drone Port</div>
+            <div class="tip-box">Use for bauxite or nitrogen from remote nodes — cheaper than building conveyors across the map.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-logistics" data-cat="logistics" data-name="train station locomotive freight car" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Train Station / Locomotive / Freight Car</span><span><span class="cat-badge badge-logistics">Logistics</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Rail-based high-volume transport. Trains carry massive quantities of materials across the map on dedicated rail networks. Best long-distance bulk transport solution in the game.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Capacity <span>Very high</span></div><div class="stat">Speed <span>High</span></div><div class="stat">Fuel <span>Solid Biofuel / Coal / Packaged Fuel</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Heavy Modular Frame + Motor + Computer + Steel Beam <span class="arrow">→</span> Locomotive</div>
+            <div class="warning-box">Train collisions are destructive. Always use signals and dedicated single-direction lanes on busy routes.</div>
+        </div>
+    </div>
+
+    <!-- SPECIAL -->
+    <div class="category-title" data-cat="special">Special</div>
+
+    <div class="resource-card cat-special" data-cat="special" data-name="awesome sink" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">AWESOME Sink</span><span><span class="cat-badge badge-special">Special</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Destroys any item fed into it and converts it to AWESOME points for the AWESOME Shop. Never overflows — the perfect overflow solution for any production line. FICSIT approved waste elimination.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Input <span>Anything</span></div><div class="stat">Output <span>AWESOME points</span></div><div class="stat">Power <span>30 MW</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Reinforced Iron Plate + Cable + Wire + Concrete <span class="arrow">→</span> AWESOME Sink</div>
+            <div class="tip-box">Connect to every production line's overflow output. Earns shop points passively.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-special" data-cat="special" data-name="awesome shop" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">AWESOME Shop</span><span><span class="cat-badge badge-special">Special</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Spends AWESOME points earned from the Sink to purchase cosmetics, customization options, and special items. No production impact but essential for Pioneer morale.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Input <span>AWESOME points</span></div><div class="stat">Power <span>0 MW</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Unlocked at HUB — no construction cost</div>
+            <div class="tip-box">Prioritize unlocking the AWESOME Sink early to start accumulating points passively.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-special" data-cat="special" data-name="space elevator" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Space Elevator</span><span><span class="cat-badge badge-special">Special</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">The central goal of the FICSIT operation on MASSAGE-2(AB)b. Receives phase deliveries of milestone parts and unlocks new tiers of technology. Four phases to complete. Build everything around it.</p>
+            <div class="card-section">Phases</div>
+            <div class="stat-row">
+                <div class="stat">Phase 1 <span>Smart Plating</span></div>
+                <div class="stat">Phase 2 <span>Versatile Framework + AIF</span></div>
+                <div class="stat">Phase 3 <span>Modular Engine + AIF</span></div>
+                <div class="stat">Phase 4 <span>Thermal Engine + Nuclear Pasta + AIF</span></div>
+            </div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Pre-built at game start — feed it milestone deliveries to progress</div>
+            <div class="warning-box">This is your mission objective. All production exists to serve the Space Elevator. FICSIT is watching.</div>
+        </div>
+    </div>
+
+    <div class="resource-card cat-special" data-cat="special" data-name="equipment workshop" onclick="toggleCard(this)">
+        <div class="card-header"><span class="card-name">Equipment Workshop</span><span><span class="cat-badge badge-special">Special</span> <span class="chevron">▶</span></span></div>
+        <div class="card-body">
+            <p class="card-desc">Manual crafting station for pioneer equipment, tools, and weapons. Requires manual interaction — not automated. Build one at each base outpost for field equipment production.</p>
+            <div class="card-section">Stats</div>
+            <div class="stat-row"><div class="stat">Power <span>0 MW</span></div><div class="stat">Type <span>Manual</span></div></div>
+            <div class="card-section">Recipe</div>
+            <div class="recipe-box">Iron Plate + Iron Rod + Wire <span class="arrow">→</span> Equipment Workshop</div>
+            <div class="tip-box">Keep one near your main base entrance for quick equipment crafting during exploration prep.</div>
+        </div>
+    </div>
+
+    <br>
+    <a href="/" class="ficsit-btn">[ Back to HUB ]</a>
+    <footer>FICSIT Inc. — Waste nothing. Build everything.</footer>
+</div>
+<script>
+function toggleCard(card){var body=card.querySelector('.card-body');var chevron=card.querySelector('.chevron');body.classList.toggle('open');chevron.classList.toggle('open');}
+function filterResources(){var query=document.getElementById('search').value.toLowerCase();document.querySelectorAll('.resource-card').forEach(function(card){card.classList.toggle('hidden',card.getAttribute('data-name').indexOf(query)===-1);});updateCategoryTitles();}
+function filterCategory(cat,btn){document.querySelectorAll('.cat-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');document.querySelectorAll('.resource-card').forEach(function(card){card.classList.toggle('hidden',cat!=='all'&&card.getAttribute('data-cat')!==cat);});updateCategoryTitles();}
+function updateCategoryTitles(){document.querySelectorAll('.category-title').forEach(function(title){var cat=title.getAttribute('data-cat');title.style.display=document.querySelectorAll('.resource-card[data-cat="'+cat+'"]:not(.hidden)').length===0?'none':'block';});}
+</script>
+</body>
+</html>

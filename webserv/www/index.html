@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <title>FICSIT HUB</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+        .container { max-width: 680px; width: 90%; padding: 40px 20px; }
+        .ficsit-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #fa9414;
+            padding-bottom: 16px;
+        }
+        .ficsit-logo { font-size: 28px; font-weight: 900; color: #fa9414; letter-spacing: 4px; text-transform: uppercase; }
+        .ficsit-tagline { font-size: 11px; color: #888; letter-spacing: 2px; text-transform: uppercase; }
+        .status {
+            background: #333;
+            border-left: 5px solid #fa9414;
+            padding: 12px 16px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #ccc;
+        }
+        .status strong { color: #fa9414; }
+        h3 { color: #fa9414; text-transform: uppercase; letter-spacing: 2px; font-size: 13px; margin-top: 28px; }
+        ul { list-style: none; padding: 0; margin: 0; }
+        ul li {
+            padding: 8px 12px;
+            border-bottom: 1px solid #333;
+            color: #ccc;
+            font-size: 14px;
+        }
+        ul li::before { content: "▸ "; color: #fa9414; }
+        .separator { width: 40px; height: 3px; background: #fa9414; margin: 24px 0; }
+        footer { margin-top: 40px; font-size: 11px; color: #444; text-transform: uppercase; letter-spacing: 2px; }
+        em { color: #666; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="ficsit-header">
+            <div>
+                <div class="ficsit-logo">FICSIT Inc.</div>
+                <div class="ficsit-tagline">Pioneer Operations Hub — Automated Systems Division</div>
+            </div>
+        </div>
+
+        <h1>Welcome, Pioneer.</h1>
+        <div class="separator"></div>
+
+        <div class="status">
+            <strong>Factory Status:</strong> Operational
+        </div>
+
+        <a href="/resources.html" class="ficsit-btn">Resources</a>
+        <br>
+        <a href="/creatures.html" class="ficsit-btn">Creatures</a>
+        <br>
+        <a href="/items.html" class="ficsit-btn">Items</a>
+        <br>
+        <a href="/equipment.html" class="ficsit-btn">Equipment</a>
+        <br>
+        <a href="/machines.html" class="ficsit-btn">Machines</a>
+        <br>
+        <a href="/calculator.html" class="ficsit-btn">Production Calculator</a>
+
+        <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #333;">
+            <em>Reminder: FICSIT does not authorize waste.</em>
+        </div>
+
+        <footer>FICSIT Inc. — Waste nothing. Build everything.</footer>
+    </div>
+</body>
+</html>

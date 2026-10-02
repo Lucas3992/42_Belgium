@@ -1,0 +1,73 @@
+services:
+  mariadb:
+    build:
+      context: ./requirements/mariadb
+    container_name: mariadb
+    env_file: ../.env
+    secrets:
+      - db_root_password
+      - db_password
+    volumes:
+      - mariadb_volume:/var/lib/mysql
+    restart: always
+    networks:
+      - inception_network
+
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+    container_name: wordpress
+    env_file:
+      - ../.env
+    depends_on:
+      - mariadb
+    secrets:
+      - db_password
+      - wp_admin_password
+      - wp_user_password
+    volumes:
+      - wordpress_volume:/var/www/html
+    restart: always
+    networks:
+      - inception_network
+
+  nginx:
+    build:
+      context: ./requirements/nginx
+    container_name: nginx
+    depends_on:
+      - wordpress
+    volumes:
+      - wordpress_volume:/var/www/html
+    ports:
+      - "443:443"
+    restart: always
+    networks:
+      - inception_network
+
+secrets:
+  db_root_password:
+    file: ../secrets/db_root_password.txt
+  db_password:
+    file: ../secrets/db_password.txt
+  wp_admin_password:
+    file: ../secrets/wp_admin_password.txt
+  wp_user_password:
+    file: ../secrets/wp_user_password.txt
+
+volumes:
+  mariadb_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/lde-sutt/data/mariadb
+  wordpress_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/lde-sutt/data/wordpress
+
+networks:
+  inception_network:
